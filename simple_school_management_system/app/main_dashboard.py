@@ -6,6 +6,10 @@ from PIL import Image, ImageTk
 import os
 from models.dashboard_model import get_stats
 from app.student_register import StudentRegisterWindow
+from app.student_fee import StudentFeeWindow
+from app.receipt_generator import ReceiptWindow
+from app.bulk_import import BulkUploadWindow
+
 
 class MainDashboard:
     def __init__(self, root):
@@ -77,13 +81,16 @@ class MainDashboard:
         StudentRegisterWindow(win)
 
     def open_fee_management(self):
-        print("Coming soon...")
+        win = tk.Toplevel(self.root)
+        StudentFeeWindow(win)
 
     def open_bulk_upload(self):
-        print("Coming soon...")
+        win = tk.Toplevel(self.root)
+        BulkUploadWindow(win)
 
     def open_receipt_generator(self):
-        print("Coming soon...")
+        win = tk.Toplevel(self.root)
+        ReceiptWindow(win)
 
     def logout(self):
         self.root.destroy()

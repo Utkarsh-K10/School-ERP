@@ -35,3 +35,19 @@ def add_student_fee(data):
         return True, "Fee record saved successfully."
     except Exception as e:
         return False, str(e)
+    
+def get_latest_fee_record(uid):
+    conn = create_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT * FROM student_fee
+        WHERE student_uid = %s
+        ORDER BY submission_date DESC
+        LIMIT 1
+    """, (uid,))
+    record = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+    return record

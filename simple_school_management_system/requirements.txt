@@ -1,0 +1,5 @@
+fpdf==1.7.2
+openpyxl
+pillow
+pandas
+mysql-connector-python
