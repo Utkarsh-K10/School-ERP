@@ -1,40 +1,32 @@
 # app/receipt_generator.py
 
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import messagebox
 from models.student_fee_controller import get_student_by_uid, get_latest_fee_record
-from PIL import Image, ImageTk
+from PIL import Image
 import os
 from fpdf import FPDF
-import datetime
 
 class ReceiptWindow:
     def __init__(self, master):
         self.master = master
-        self.master.title("Generate Fee Receipt")
+        self.master.title("Fee Receipt Generator")
         self.master.geometry("700x600")
-        self.master.configure(bg="#f5f5f5")
 
-        self.setup_ui()
+        self.frame = ctk.CTkFrame(master, corner_radius=20)
+        self.frame.pack(padx=20, pady=20, fill="both", expand=True)
 
-    def setup_ui(self):
-        tk.Label(self.master, text="Generate Fee Receipt", font=("Arial", 18, "bold"),
-                 bg="#f5f5f5", fg="#003366").pack(pady=10)
+        ctk.CTkLabel(self.frame, text="Generate Fee Receipt", font=("Arial", 20, "bold")).pack(pady=(10, 20))
 
-        form = tk.Frame(self.master, bg="#f5f5f5")
-        form.pack(pady=10)
+        self.uid_entry = ctk.CTkEntry(self.frame, placeholder_text="Enter Student UID", width=300)
+        self.uid_entry.pack(pady=10)
 
-        tk.Label(form, text="Enter Student UID:", bg="#f5f5f5").grid(row=0, column=0, pady=10)
-        self.uid_entry = tk.Entry(form, width=30)
-        self.uid_entry.grid(row=0, column=1, padx=10)
+        ctk.CTkButton(self.frame, text="Search", command=self.load_receipt).pack()
 
-        tk.Button(form, text="Search", command=self.generate_receipt_view,
-                  bg="#2196f3", fg="white").grid(row=0, column=2, padx=5)
+        self.result_frame = ctk.CTkFrame(self.frame, corner_radius=15, fg_color="#ffffff")
+        self.result_frame.pack(pady=30, fill="both", expand=True)
 
-        self.result_frame = tk.Frame(self.master, bg="#ffffff", relief="sunken", borderwidth=1)
-        self.result_frame.pack(padx=20, pady=20, fill=tk.BOTH, expand=True)
-
-    def generate_receipt_view(self):
+    def load_receipt(self):
         for widget in self.result_frame.winfo_children():
             widget.destroy()
 
@@ -43,43 +35,40 @@ class ReceiptWindow:
         fee = get_latest_fee_record(uid)
 
         if not student or not fee:
-            messagebox.showerror("Error", "Student or Fee data not found.")
+            messagebox.showerror("Error", "Student or latest fee record not found.")
             return
 
-        # School Header
+        # School branding
         logo_path = os.path.join("assets", "logo.png")
-        try:
-            logo_img = Image.open(logo_path).resize((60, 60))
-            logo = ImageTk.PhotoImage(logo_img)
-            logo_label = tk.Label(self.result_frame, image=logo, bg="white")
-            logo_label.image = logo
-            logo_label.pack(pady=5)
-        except:
-            pass
+        if os.path.exists(logo_path):
+            logo_img = ctk.CTkImage(Image.open(logo_path), size=(60, 60))
+            ctk.CTkLabel(self.result_frame, text="", image=logo_img).pack(pady=(10, 5))
 
-        tk.Label(self.result_frame, text="R K Memorial Hr. Sec. School", font=("Cinzel", 18, "bold"),
-                 bg="white", fg="#000000").pack()
-        tk.Label(self.result_frame, text="Hanuman Nagar, Ward 17, Satna (M.P.)", bg="white",
-                 font=("Arial", 12)).pack()
-        tk.Label(self.result_frame, text="Fee Receipt", font=("Arial", 14, "bold"), bg="white", pady=10).pack()
+        ctk.CTkLabel(self.result_frame, text="R K Memorial Hr. Sec. School",
+                    font=("Cinzel", 18, "bold"), text_color="#000").pack()
+        ctk.CTkLabel(self.result_frame, text="Hanuman Nagar, Ward 17, Satna (M.P.)",
+                    font=("Arial", 13)).pack(pady=(0, 10))
 
-        details = [
-            f"Student UID: {student['student_uid']}",
-            f"Name: {student['name']}",
-            f"Class: {student['class']} - {student['section']}",
-            f"Date of Payment: {fee['submission_date']}",
-            f"Total Fee: ₹{fee['total_fee']}",
-            f"Discount: ₹{fee['discount']}",
-            f"Late Fee: ₹{fee['late_fee']}",
-            f"Amount Received: ₹{fee['received']}",
-            f"Outstanding: ₹{fee['outstanding']}",
+        ctk.CTkLabel(self.result_frame, text="FEE RECEIPT", font=("Arial", 14, "bold")).pack(pady=10)
+
+        detail_fields = [
+            ("Student UID", student["student_uid"]),
+            ("Name", student["name"]),
+            ("Class", f"{student['class']} - {student['section']}"),
+            ("Date of Payment", fee["submission_date"]),
+            ("Total Fee", f"₹{fee['total_fee']}"),
+            ("Discount", f"₹{fee['discount']}"),
+            ("Late Fee", f"₹{fee['late_fee']}"),
+            ("Amount Received", f"₹{fee['received']}"),
+            ("Outstanding", f"₹{fee['outstanding']}")
         ]
 
-        for d in details:
-            tk.Label(self.result_frame, text=d, font=("Arial", 11), bg="white").pack(anchor="w", padx=20)
+        for label, value in detail_fields:
+            ctk.CTkLabel(self.result_frame, text=f"{label}: {value}",
+                        font=("Arial", 12), anchor="w", justify="left").pack(padx=30, anchor="w")
 
-        tk.Button(self.result_frame, text="Print / Save PDF", command=lambda: self.export_pdf(student, fee),
-                bg="#4caf50", fg="white", font=("Arial", 12)).pack(pady=20)
+        ctk.CTkButton(self.result_frame, text="Save as PDF", command=lambda: self.export_pdf(student, fee),
+                    fg_color="#4caf50", hover_color="#388e3c", width=200).pack(pady=20)
 
     def export_pdf(self, student, fee):
         filename = f"Receipt_{student['student_uid']}.pdf"
@@ -94,7 +83,7 @@ class ReceiptWindow:
 
         def write(label, value):
             pdf.set_font("Arial", "B", 11)
-            pdf.cell(50, 8, f"{label}:", 0)
+            pdf.cell(60, 8, f"{label}:", 0)
             pdf.set_font("Arial", "", 11)
             pdf.cell(100, 8, f"{value}", ln=True)
 
@@ -112,4 +101,4 @@ class ReceiptWindow:
         pdf.cell(200, 8, "Thank you for your payment.", ln=True, align='C')
 
         pdf.output(filename)
-        messagebox.showinfo("PDF Saved", f"Receipt saved as {filename}")
+        messagebox.showinfo("Saved", f"Receipt saved as {filename}")

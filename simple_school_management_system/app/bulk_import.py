@@ -1,6 +1,6 @@
 # app/bulk_import.py
 
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import pandas as pd
 from models.student_controller import register_student, get_next_student_uid
@@ -9,23 +9,29 @@ class BulkUploadWindow:
     def __init__(self, master):
         self.master = master
         self.master.title("Bulk Upload Students")
-        self.master.geometry("600x300")
-        self.master.configure(bg="#f5f5f5")
+        self.master.geometry("600x400")
 
-        tk.Label(self.master, text="Bulk Upload from Excel", font=("Arial", 18, "bold"),
-                 bg="#f5f5f5", fg="#003366").pack(pady=20)
+        self.frame = ctk.CTkFrame(master, corner_radius=20)
+        self.frame.pack(padx=30, pady=30, fill="both", expand=True)
 
-        tk.Button(self.master, text="Select Excel File", command=self.select_file,
-                  bg="#2196f3", fg="white", font=("Arial", 12)).pack(pady=10)
+        ctk.CTkLabel(self.frame, text="Bulk Upload from Excel",
+                    font=("Arial", 20, "bold")).pack(pady=(10, 30))
+
+        ctk.CTkButton(self.frame, text="Select Excel File",
+                    command=self.select_file, width=250).pack(pady=20)
+
+        self.result_label = ctk.CTkLabel(self.frame, text="", font=("Arial", 14))
+        self.result_label.pack(pady=20)
 
     def select_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Excel files", "*.xlsx")]
+        )
         if not file_path:
             return
 
         try:
             df = pd.read_excel(file_path)
-
             success_count = 0
             fail_count = 0
 
@@ -61,13 +67,13 @@ class BulkUploadWindow:
                         success_count += 1
                     else:
                         fail_count += 1
-
                 except Exception as e:
-                    print(f"Error in row: {e}")
+                    print(f"Row error: {e}")
                     fail_count += 1
 
-            messagebox.showinfo("Upload Complete",
-                                f"Success: {success_count} students\nFailed: {fail_count}")
+            self.result_label.configure(
+                text=f"✅ Uploaded: {success_count}  |  ❌ Failed: {fail_count}"
+            )
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to read Excel file.\n{e}")
+            messagebox.showerror("Error", f"Could not read Excel file:\n{e}")

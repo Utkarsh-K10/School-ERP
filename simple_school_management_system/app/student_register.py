@@ -1,37 +1,37 @@
 # app/student_register.py
 
-import tkinter as tk
-from tkinter import messagebox, ttk
+import customtkinter as ctk
+from tkinter import messagebox
 from models.student_controller import register_student, get_next_student_uid
 
 class StudentRegisterWindow:
     def __init__(self, master):
         self.master = master
         self.master.title("Register New Student")
-        self.master.geometry("700x750")
+        self.master.geometry("750x750")
         self.master.configure(bg="#f5f5f5")
 
         self.student_uid = get_next_student_uid()
+        self.entries = {}
+
+        self.scrollable_frame = ctk.CTkScrollableFrame(self.master, width=700, height=700)
+        self.scrollable_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
         self.setup_ui()
 
     def setup_ui(self):
-        tk.Label(self.master, text="Student Registration Form", font=("Arial", 18, "bold"),
-                bg="#f5f5f5", fg="#003366").pack(pady=15)
-
-        form = tk.Frame(self.master, bg="#f5f5f5")
-        form.pack(padx=20, pady=10, fill=tk.BOTH, expand=True)
-
-        self.entries = {}
+        ctk.CTkLabel(self.scrollable_frame, text="Student Registration Form",
+                    font=("Arial", 20, "bold")).pack(pady=(10, 20))
 
         fields = [
             ("Name", "name"),
-            ("Date of Birth (YYYY-MM-DD)", "dob"),
+            ("DOB (YYYY-MM-DD)", "dob"),
             ("Father's Name", "father_name"),
             ("Mother's Name", "mother_name"),
             ("Aadhar Number", "adhar_no"),
-            ("Under RTE", "under_rte"),
+            ("Under RTE (Yes/No)", "under_rte"),
             ("APAR ID", "apar_id"),
-            ("Medium", "medium"),
+            ("Medium (Hindi/English)", "medium"),
             ("Class", "class"),
             ("Section", "section"),
             ("Roll No", "roll_no"),
@@ -39,65 +39,63 @@ class StudentRegisterWindow:
             ("Address", "address"),
             ("WhatsApp No", "whatsapp_no"),
             ("Guardian Contact", "guardian_contact"),
-            ("Bank A/C No", "bank_account"),
+            ("Bank Account No.", "bank_account"),
             ("IFSC Code", "ifsc_code")
         ]
 
-        for idx, (label, key) in enumerate(fields):
-            tk.Label(form, text=label, bg="#f5f5f5").grid(row=idx, column=0, sticky="w", pady=5)
-            entry = tk.Entry(form, width=40)
-            entry.grid(row=idx, column=1, pady=5, padx=5)
-            self.entries[key] = entry
+        for label, key in fields:
+            ctk.CTkLabel(self.scrollable_frame, text=label, anchor="w").pack(pady=(8, 0), fill="x")
+            if key == "under_rte":
+                combo = ctk.CTkComboBox(self.scrollable_frame, values=["Yes", "No"])
+                combo.pack(pady=5)
+                self.entries[key] = combo
+            elif key == "medium":
+                combo = ctk.CTkComboBox(self.scrollable_frame, values=["Hindi", "English"])
+                combo.pack(pady=5)
+                self.entries[key] = combo
+            elif key == "class":
+                combo = ctk.CTkComboBox(self.scrollable_frame, values=[str(i) for i in range(1, 13)])
+                combo.pack(pady=5)
+                combo.bind("<<ComboboxSelected>>", self.check_class)
+                self.entries[key] = combo
+            else:
+                entry = ctk.CTkEntry(self.scrollable_frame)
+                entry.pack(pady=5)
+                self.entries[key] = entry
 
-        # Dropdowns
-        self.entries['under_rte'] = ttk.Combobox(form, values=["Yes", "No"], state="readonly")
-        self.entries['under_rte'].grid(row=5, column=1, pady=5, padx=5)
+        # Subject group and school house (class 11–12 only)
+        self.group_label = ctk.CTkLabel(self.scrollable_frame, text="Subject Group (11/12)")
+        self.group_combo = ctk.CTkComboBox(self.scrollable_frame, values=["Maths", "Bio", "Arts", "Commerce"])
 
-        self.entries['medium'] = ttk.Combobox(form, values=["Hindi", "English"], state="readonly")
-        self.entries['medium'].grid(row=7, column=1, pady=5, padx=5)
-
-        self.entries['class'] = ttk.Combobox(form, values=[str(c) for c in range(1, 13)], state="readonly")
-        self.entries['class'].grid(row=8, column=1, pady=5, padx=5)
-        self.entries['class'].bind("<<ComboboxSelected>>", self.check_class_fields)
-
-        # Optional fields: Subject Group & School House (for class 11/12)
-        self.subject_group_var = tk.StringVar()
-        self.school_house_var = tk.StringVar()
-
-        self.group_label = tk.Label(form, text="Subject Group", bg="#f5f5f5")
-        self.group_combo = ttk.Combobox(form, textvariable=self.subject_group_var,
-                                        values=["Maths", "Bio", "Arts", "Commerce"], state="readonly")
-
-        self.house_label = tk.Label(form, text="School House", bg="#f5f5f5")
-        self.house_combo = ttk.Combobox(form, textvariable=self.school_house_var,
-                                        values=["Himalaya", "Satpura", "Nilgiri", "Vindhyanchal"], state="readonly")
+        self.house_label = ctk.CTkLabel(self.scrollable_frame, text="School House")
+        self.house_combo = ctk.CTkComboBox(self.scrollable_frame, values=["Himalaya", "Satpura", "Nilgiri", "Vindhyanchal"])
 
         # Submit button
-        tk.Button(self.master, text="Submit", command=self.submit_form, bg="#4caf50", fg="white",
-                font=("Arial", 12, "bold")).pack(pady=20)
+        ctk.CTkButton(self.scrollable_frame, text="Submit", command=self.submit_form,
+                    width=200, height=40, font=("Arial", 14)).pack(pady=20)
 
-    def check_class_fields(self, event=None):
-        selected_class = self.entries['class'].get()
-        if selected_class in ["11", "12"]:
-            self.group_label.grid(row=17, column=0, sticky="w", pady=5)
-            self.group_combo.grid(row=17, column=1, pady=5, padx=5)
-            self.house_label.grid(row=18, column=0, sticky="w", pady=5)
-            self.house_combo.grid(row=18, column=1, pady=5, padx=5)
+    def check_class(self, event=None):
+        class_value = self.entries['class'].get()
+        if class_value in ["11", "12"]:
+            self.group_label.pack(pady=(8, 0))
+            self.group_combo.pack(pady=5)
+            self.house_label.pack(pady=(8, 0))
+            self.house_combo.pack(pady=5)
         else:
-            self.group_label.grid_forget()
-            self.group_combo.grid_forget()
-            self.house_label.grid_forget()
-            self.house_combo.grid_forget()
+            self.group_label.pack_forget()
+            self.group_combo.pack_forget()
+            self.house_label.pack_forget()
+            self.house_combo.pack_forget()
 
     def submit_form(self):
         data = {
             "student_uid": self.student_uid,
-            "subject_group": self.subject_group_var.get() if self.entries['class'].get() in ["11", "12"] else None,
-            "school_house": self.school_house_var.get() if self.entries['class'].get() in ["11", "12"] else None
+            "subject_group": self.group_combo.get() if self.entries['class'].get() in ["11", "12"] else None,
+            "school_house": self.house_combo.get() if self.entries['class'].get() in ["11", "12"] else None
         }
 
-        for key, entry in self.entries.items():
-            data[key] = entry.get()
+        for key, widget in self.entries.items():
+            data[key] = widget.get().strip()
 
         success, msg = register_student(data)
         if success:
