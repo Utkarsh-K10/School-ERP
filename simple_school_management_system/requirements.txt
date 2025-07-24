@@ -3,3 +3,5 @@ openpyxl
 pillow
 pandas
 mysql-connector-python
+qrcode
+Pillow

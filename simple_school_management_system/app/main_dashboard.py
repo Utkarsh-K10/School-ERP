@@ -7,6 +7,8 @@ from app.fee_management import FeeStructureWindow
 from app.student_fee import StudentFeeWindow
 from app.receipt_generator import ReceiptWindow
 from app.bulk_import import BulkUploadWindow
+from app.id_card_generator import IDCardWindow
+from app.bulk_id_export import BulkIDCardExporter
 import os
 from PIL import Image
 
@@ -16,10 +18,8 @@ class MainDashboard:
         self.root.title("Admin Dashboard - School Fee System")
         self.root.geometry("950x700")
         self.root.minsize(800, 600)
-
         self.frame = ctk.CTkFrame(self.root, corner_radius=20)
         self.frame.pack(padx=20, pady=20, fill="both", expand=True)
-
         self.setup_ui()
 
     def setup_ui(self):
@@ -57,6 +57,7 @@ class MainDashboard:
             ("💰 Fee Management", self.open_fee_management),
             ("📥 Bulk Upload", self.open_bulk_upload),
             ("🧾 Generate Receipt", self.open_receipt_generator),
+            ("🪪 Generate ID Card", self.open_id_generator),
             ("🔓 Logout", self.logout),
         ]
 
@@ -87,6 +88,16 @@ class MainDashboard:
     def open_receipt_generator(self):
         win = ctk.CTkToplevel(self.root)
         ReceiptWindow(win)
+
+    def open_id_generator(self):
+        win = ctk.CTkToplevel(self.root)
+        IDCardWindow(win)
+
+
+    def open_bulk_id_export(self):
+        win = ctk.CTkToplevel(self.root)
+        BulkIDCardExporter(win)
+
 
     def logout(self):
         self.root.destroy()
