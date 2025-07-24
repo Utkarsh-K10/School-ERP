@@ -25,22 +25,6 @@ class IDCardWindow:
 
         ctk.CTkButton(self.frame, text="Generate ID", command=self.generate_id_card).pack(pady=10)
 
-    # def generate_id_card(self):
-    #     uid = self.uid_entry.get().strip()
-    #     if not uid:
-    #         messagebox.showerror("Error", "Please enter a valid UID.")
-    #         return
-
-    #     student = get_student_by_uid(uid)
-    #     if not student:
-    #         messagebox.showerror("Error", "Student not found.")
-    #         return
-
-    #     try:
-    #         self.export_id_pdf(student)
-    #         messagebox.showinfo("Success", f"ID card saved as ID_{uid}.pdf")
-    #     except Exception as e:
-    #         messagebox.showerror("Error", f"Failed to generate ID card:\n{e}")
     def generate_id_card(self):
         uid = self.uid_entry.get().strip()
         if not uid:
