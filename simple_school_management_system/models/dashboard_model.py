@@ -1,9 +1,9 @@
 # models/dashboard_model.py
 
-from config.db_config import create_connection
+from config.mysql_connection import get_connection
 
 def get_stats():
-    connection = create_connection()
+    connection = get_connection()
     cursor = connection.cursor()
 
     cursor.execute("SELECT COUNT(*) FROM students")

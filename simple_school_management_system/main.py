@@ -1,5 +1,7 @@
 # Entry point - main.py
 
+import sys
+sys.path.append('../')
 import customtkinter as ctk
 from app.login import LoginWindow
 from models.init_db import initialize_db

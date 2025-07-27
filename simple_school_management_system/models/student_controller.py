@@ -1,9 +1,9 @@
 # models/student_controller.py
 
-from config.db_config import create_connection
+from config.mysql_connection import get_connection
 
 def get_next_student_uid():
-    conn = create_connection()
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("SELECT COUNT(*) FROM students")
@@ -14,7 +14,7 @@ def get_next_student_uid():
 
 def register_student(data):
     try:
-        conn = create_connection()
+        conn = get_connection()
         cursor = conn.cursor()
 
         sql = """

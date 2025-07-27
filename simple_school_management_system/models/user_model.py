@@ -1,13 +1,13 @@
 # models/user_model.py
 
-from config.db_config import create_connection
+from config.mysql_connection import get_connection
 import hashlib
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def create_admin(username, password):
-    connection = create_connection()
+    connection = get_connection()
     cursor = connection.cursor()
 
     cursor.execute("SELECT * FROM admin WHERE username=%s", (username,))
@@ -23,7 +23,7 @@ def create_admin(username, password):
     connection.close()
 
 def verify_admin(username, password):
-    connection = create_connection()
+    connection = get_connection()
     cursor = connection.cursor()
     hashed_pw = hash_password(password)
 

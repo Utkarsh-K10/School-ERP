@@ -1,9 +1,9 @@
 # models/fee_controller.py
 
-from config.db_config import create_connection
+from config.mysql_connection import get_connection
 
 def add_fee_structure(class_, section, tuition, transport, activity, admission, total):
-    conn = create_connection()
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -16,7 +16,7 @@ def add_fee_structure(class_, section, tuition, transport, activity, admission, 
     conn.close()
 
 def get_all_fee_structures():
-    conn = create_connection()
+    conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
         SELECT class, section, tuition_fee, transport_fee,
@@ -30,7 +30,7 @@ def get_all_fee_structures():
     return rows
 
 def get_fee_structure_by_class_section(class_, section):
-    conn = create_connection()
+    conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT * FROM fee_structure WHERE class=%s AND section=%s
@@ -42,7 +42,7 @@ def get_fee_structure_by_class_section(class_, section):
 
 
 def delete_fee_structure(class_, section):
-    conn = create_connection()
+    conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM fee_structure WHERE class=%s AND section=%s", (class_, section))
     conn.commit()

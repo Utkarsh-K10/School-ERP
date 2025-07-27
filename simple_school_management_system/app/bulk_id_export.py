@@ -18,10 +18,10 @@ class BulkIDCardExporter:
         self.frame.pack(padx=20, pady=20, fill="both", expand=True)
 
         ctk.CTkLabel(self.frame, text="Bulk Export Student ID Cards",
-                     font=("Arial", 20, "bold")).pack(pady=30)
+                    font=("Arial", 20, "bold")).pack(pady=30)
 
         ctk.CTkButton(self.frame, text="Generate All IDs", command=self.export_bulk_ids,
-                      width=250).pack(pady=20)
+                    width=250).pack(pady=20)
 
     def export_bulk_ids(self):
         students = get_all_students()

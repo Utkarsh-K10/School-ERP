@@ -1,53 +1,32 @@
 # models/student_fee_controller.py
-
-from config.db_config import create_connection
+from config.mysql_connection import get_connection
 
 def get_student_by_uid(uid):
-    conn = create_connection()
+    conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-
     cursor.execute("SELECT * FROM students WHERE student_uid = %s", (uid,))
     student = cursor.fetchone()
-
-    cursor.close()
     conn.close()
     return student
 
-def add_student_fee(data):
-    try:
-        conn = create_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            INSERT INTO student_fee (
-                student_uid, total_fee, discount, received, outstanding,
-                late_fee, submission_date
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (
-            data['student_uid'], data['total_fee'], data['discount'],
-            data['received'], data['outstanding'],
-            data['late_fee'], data['submission_date']
-        ))
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return True, "Fee record saved successfully."
-    except Exception as e:
-        return False, str(e)
-    
-def get_latest_fee_record(uid):
-    conn = create_connection()
+def get_all_students():
+    conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM students ORDER BY student_uid ASC")
+    students = cursor.fetchall()
+    conn.close()
+    return students
 
-    cursor.execute("""
-        SELECT * FROM student_fee
-        WHERE student_uid = %s
-        ORDER BY submission_date DESC
+def get_latest_fee_record(uid):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+        SELECT * FROM fee_payments 
+        WHERE student_uid = %s 
+        ORDER BY submission_date DESC 
         LIMIT 1
-    """, (uid,))
+    """
+    cursor.execute(query, (uid,))
     record = cursor.fetchone()
-
-    cursor.close()
     conn.close()
     return record
